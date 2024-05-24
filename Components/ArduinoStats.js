@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { ref, onValue, update, off } from 'firebase/database';
-import database from '../firebaseConfig'; // Adjust the path if necessary
+import { database } from '../firebaseConfig'; // Adjust the path if necessary
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import the icon library
 
 const getTemperatureIcon = (temperature) => {
@@ -38,7 +38,7 @@ const ArduinoStats = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const dbRef = ref(database); // Reference the root node
+    const dbRef = ref(database, '/'); // Reference the root node
 
     const handleData = (snapshot) => {
       try {
@@ -62,20 +62,26 @@ const ArduinoStats = () => {
           );
         }
       } catch (error) {
+        console.error('Error handling data:', error);
         setLoading(false);
         setError(error.message); // Set error state if any error occurs
       }
     };
 
     const handleError = (error) => {
+      console.error('Error fetching data:', error);
       setLoading(false);
       setError(error.message); // Set error state if any error occurs
     };
 
+    console.log('Setting up Firebase listener');
     onValue(dbRef, handleData, handleError);
 
     // Cleanup function
-    return () => off(dbRef, 'value', handleData);
+    return () => {
+      console.log('Cleaning up Firebase listener');
+      off(dbRef, 'value', handleData);
+    };
   }, []);
 
   const handleBuzzerStateChange = (newState) => {

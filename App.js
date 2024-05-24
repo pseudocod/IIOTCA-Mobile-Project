@@ -1,14 +1,21 @@
-import * as React from 'react';
+import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-
+import { AuthProvider, AuthContext } from './AuthContext'; // Adjust the path if necessary
+import AuthComponent from './Components/AuthComponent'; // Adjust the path if necessary
 import FirstPageWithButton from './Components/FirstPageWithButton';
 import ArduinoPreviousStatsData from './Components/ArduinoPreviousStatsData';
 
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
+  const { currentUser } = useContext(AuthContext);
+
+  if (!currentUser) {
+    return <AuthComponent />;
+  }
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -36,8 +43,10 @@ function MyTabs() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <MyTabs />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <MyTabs />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
